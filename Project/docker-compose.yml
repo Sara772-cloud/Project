@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./dockerizetrial/dockerhrapptrial
+      dockerfile: Dockerfile
+    networks:
+      - backend-network
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db-password
+      MYSQL_DATABASE: example
+    secrets:
+      - db-password
+    networks:
+      - db-network
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "443:443"
+    networks:
+      - proxy-network
+    depends_on:
+      - backend
+
+secrets:
+  db-password:
+    file: ./secrets/db-password
+
+networks:
+  backend-network:
+  db-network:
+  proxy-network:
